@@ -1,0 +1,9 @@
+- action_card = ActionCard.new
+= action_card_render action_card do
+  - header "gene", "Associated Gene Name", :organism => entity.organism
+  - header "x", "NumericValue"
+  - header "p", "NumericValue"
+  - header "p.value", "NumericValue"
+  - header "q", "NumericValue"
+  = table :table_id => "Significantly mutated in #{ entity }", :page => '1~q' do
+    - NKIWorkflow.job(:significantly_mutated, entity, :study => entity).run

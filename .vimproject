@@ -1,0 +1,24 @@
+NKIWorkflow=/$PWD filter="*"{
+ workflow.rb
+ lib=lib{
+ }
+ share=share{
+  R=R{
+   MM.assess.mutation.patterns.R
+   MM.assess.mutation.patterns.in.gene.R
+   MM.generate.bubble.plot.R
+   MM.identify.mutated.genes.binom.R
+  }
+ }
+ www=www{
+  views=views{
+   entity=entity{
+    Study=Study{
+     bubble_plot.haml
+     exclusivity.haml
+     significantly_mutated.haml
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,39 @@
+- action_card = ActionCard.new do
+  - input :filter_list, :select, "Gene list to filter", "none", :select_options => {'none' => 'All genome'}, :html_options => {:class => 'favourite_lists', :type => 'Gene'}
+  - input :type, :select, "Type of analysis", :mutations, :select_options => {'mutations' => "Mutations", 'gain' => "Gained genes", 'loss' => "Lost genes", 'cnv' => "Gained or lost genes", 'mutations_gain' => "Mutated and gained", 'mutations_loss' => "Mutated and lost", 'mutations_cnv' => "Mutated, lost or gained"}
+
+= action_card_render action_card do
+  - type = :mutations unless defined? type and type
+  - case type.to_s
+  - when "mutations"
+    - matrix = entity.gene_sample_matrix
+  - when "gain"
+    - matrix = entity.gene_sample_gain_matrix
+  - when "loss"
+    - matrix = entity.gene_sample_loss_matrix
+  - when "cnv"
+    - matrix = entity.gene_sample_cnv_matrix
+  - when "mutations_gain"
+    - matrix = OR_matrices(entity.gene_sample_matrix, entity.gene_sample_gain_matrix)
+  - when "mutations_loss"
+    - matrix = OR_matrices(entity.gene_sample_matrix, entity.gene_sample_loss_matrix)
+  - when "mutations_cnv"
+    - matrix = OR_matrices(entity.gene_sample_matrix, entity.gene_sample_cnv_matrix)
+  - else
+    - raise "Not implemented: #{ type }"
+
+  - if defined? filter_list and not filter_list == "none"
+    - list = Entity::List.load_list "Gene", filter_list, user
+    - matrix = matrix.select(list)
+
+  - organism = entity.organism
+  - header "a", "Ensembl Gene ID", :organism => entity.organism
+  - header "b", "Ensembl Gene ID", :organism => entity.organism
+  - header "odds", "NumericValue"
+  - header "fisher.p", "NumericValue"
+  - header "chisq.estimate", "NumericValue"
+  - header "chisq.p", "NumericValue"
+  - header "fisher.q", "NumericValue"
+  = table :page => '1~chisq.estimate' do
+    - NKIWorkflow.job(:exclusivity, entity, :matrix => matrix).run
+
